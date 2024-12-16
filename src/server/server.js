@@ -16,9 +16,6 @@ dotenv.config();
             cors: {
               origin: ['*'],
             },
-            payload: {
-                maxBytes: 1 * 1024 * 1024,
-            },
         },
     });
  
