@@ -3,8 +3,8 @@ import InputError from "../exceptions/InputError.js";
 
 async function predictClassification(model, image) {
    try { 
-      // Validasi ukuran gambar 
-      if (image.length > 1000000) { 
+      // Validasi ukuran gambar
+      if (!Buffer.isBuffer(image) || image.length > 1000000) { 
          return { 
             statusCode: 413, 
             body: JSON.stringify({ 
@@ -14,34 +14,39 @@ async function predictClassification(model, image) {
          }; 
       }
 
-
-        // Decode dan preprocess gambar
-        const tensor = tf.node
+      // Decode dan preprocess gambar
+      const tensor = tf.node
             .decodeJpeg(image) // Decode gambar dengan format RGB
             .resizeNearestNeighbor([224, 224]) // Ubah ukuran sesuai input model
             .expandDims() // Tambahkan dimensi batch
             .toFloat();
 
-        // Prediksi dengan model
-        const prediction = model.predict(tensor); // Lakukan prediksi
-        const score = await prediction.data(); // Ambil hasil prediksi
-        const confidenceScore = Math.max(...score) * 100;
+      // Prediksi dengan model
+      const prediction = model.predict(tensor); // Lakukan prediksi
+      const score = await prediction.data(); // Ambil hasil prediksi
 
-    let result = {
-      confidenceScore,
-      label: "Cancer",
-      suggestion: "Segera periksa ke dokter!",
-    };
-    if (confidenceScore < 1) {
-      result.label = "Non-cancer";
-      result.suggestion = "Penyakit kanker tidak terdeteksi.";
-    }
+      if (!score || score.length === 0) {
+        throw new Error("Prediction did not return valid results.");
+      }
 
-    return result;
-  } catch (error) {
-    throw new InputError("Terjadi kesalahan dalam melakukan prediksi");
-  }
+      const confidenceScore = Math.max(...score) * 100;
+
+      let result = {
+        confidenceScore,
+        label: "Cancer",
+        suggestion: "Segera periksa ke dokter!",
+      };
+
+      if (confidenceScore < 1) {
+        result.label = "Non-cancer";
+        result.suggestion = "Penyakit kanker tidak terdeteksi.";
+      }
+
+      return result;
+   } catch (error) {
+      console.error(error); // Log the error for debugging
+      throw new InputError("Terjadi kesalahan dalam melakukan prediksi");
+   }
 }
-
 
 export default predictClassification;
