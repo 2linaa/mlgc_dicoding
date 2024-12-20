@@ -9,7 +9,7 @@ async function predictClassification(model, image) {
                 statusCode: 413,
                 body: JSON.stringify({
                     status: "fail",
-                    message: "Payload content length greater than maximum allowed: 1000000"
+                    message: 'Payload content length greater than maximum allowed: 1000000'
                 }),
             };
         }
