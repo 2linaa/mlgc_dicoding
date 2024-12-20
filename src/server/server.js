@@ -27,6 +27,16 @@ dotenv.config();
     server.ext('onPreResponse', function (request, h) {
         const response = request.response;
 
+      if (response.isBoom && response.output.statusCode === 413) {
+            const newResponse = h.response({
+                status: 'fail',
+                message: 'Payload content length greater than maximum allowed: 1000000',
+            });
+            
+            newResponse.code(413);
+            return newResponse;
+        }
+
         if (response instanceof InputError) {
             const newResponse = h.response({
                 status: 'fail',
