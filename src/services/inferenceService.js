@@ -2,28 +2,17 @@ import tf from "@tensorflow/tfjs-node";
 import InputError from "../exceptions/InputError.js";
 
 async function predictClassification(model, image) {
-   try {
-    // Validasi ukuran gambar
-    console.log('Image length:', image.length); // Log the image length
-    if (image.length > 1000000) {
-        return {
-            statusCode: 413,
-            body: JSON.stringify({
-                status: "fail",
-                message: "Payload content length greater than maximum allowed: 1000000"
+   try { 
+      // Validasi ukuran gambar 
+      if (image.length > 1000000) { 
+         return { 
+            statusCode: 413, 
+            body: JSON.stringify({ 
+               status: "fail", 
+               message: "Payload content length greater than maximum allowed: 1000000" 
             }),
-        };
-    }
-} catch (error) {
-    console.error('Error:', error);
-    return {
-        statusCode: 500,
-        body: JSON.stringify({
-            status: "error",
-            message: "Internal Server Error"
-        }),
-    };
-}
+         }; 
+      }
 
 
         // Decode dan preprocess gambar
